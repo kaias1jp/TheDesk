@@ -10,6 +10,8 @@ const os = require('os')
 const path = require('path')
 const Menu=electron.Menu
 var updatewin=null;
+
+//fs.writeFileSync("./a.txt", "test");
 // アプリケーションをコントロールするモジュール
 const app = electron.app;
 	var platform=process.platform;
@@ -382,6 +384,18 @@ ipc.on('bmp-image', (e, args) => {
 			mainWindow.webContents.send('bmp-img-comp', [src,args[1]]);
 	   });
 	});
+	
+});
+ipc.on('itunes', (e, args) => {
+	const nowplaying = require("itunes-nowplaying-mac")
+
+nowplaying().then(function (value) {
+    console.log(value);
+    mainWindow.webContents.send('itunes-np', value);
+}).catch(function (error) {
+    // 非同期処理失敗。呼ばれない
+    console.log(error);
+});
 	
 });
 ipc.on('nano', function (e, x, y) {

@@ -86,20 +86,16 @@ function nowplaying(mode){
         var electron = require("electron");
 	    var ipc = electron.ipcRenderer;
 	    ipc.send('itunes', "");
-	    ipc.on('itunesRes', function (event, arg) {
+	    ipc.on('itunes-np', function (event, arg) {
+
             var content=localStorage.getItem("np-temp");
             if(!content || content==""){
                 var content="#NowPlaying {song} / {album} / {artist}\n{url}";
             }
-            var str_array=arg.artist.split('');//1文字ずつ配列に入れる
-            var utf8Array=Encoding.convert(str_array, 'SJIS', 'AUTO');//UTF-8に変換
-            console.log(utf8Array);
-             var convert=Encoding.codeToString( utf8Array );
-             console.log(convert);
             var regExp = new RegExp("{song}", "g");
             content = content.replace(regExp, arg.name);
             var regExp = new RegExp("{album}", "g");
-            content = content.replace(regExp, arg.album);
+            content = content.replace(regExp, arg.album.name);
             var regExp = new RegExp("{artist}", "g");
             content = content.replace(regExp, arg.artist);
             var regExp = new RegExp("{url}", "g");
@@ -123,7 +119,6 @@ if(location.search){
         localStorage.setItem("spotify", coder[0]);
         localStorage.setItem("spotify-refresh", coder[1]);
     }else{
-        
     }
     
 }

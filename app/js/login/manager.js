@@ -61,7 +61,8 @@ function load() {
           var remote=electron.remote;
           var platform=remote.process.platform;
 	    if(platform=="win32"){
-           
+			//Only for WinStore
+			$("#linux").prop("checked", true);
         }else{
 			$("#linux").prop("checked", true);
 		}

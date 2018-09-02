@@ -9,9 +9,10 @@ function spotifyConnect(){
           var remote=electron.remote;
           var platform=remote.process.platform;
 	    if(platform=="win32"){
+            //Only for WinStore
+            auth=auth+"&state=code";
+            $("#spotify-code-show").removeClass("hide");
             shell.openExternal(auth);
-		  var ipc = electron.ipcRenderer;
-                ipc.send('quit', 'go');
         }else{
             auth=auth+"&state=code";
             $("#spotify-code-show").removeClass("hide");

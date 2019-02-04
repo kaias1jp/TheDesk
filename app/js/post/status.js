@@ -278,6 +278,12 @@ function redraft(id, acct_id){
 		localStorage.setItem("nohide",true);
 		show();
 		$("#textarea").val(html);
+		var cwtxt=$("[toot-id="+id+"] .cw_text").html();
+		if(cwtxt!=""){
+			cwtxt=$.strip_tags(cwtxt);
+			cw();
+			$("#cw-text").val(cwtxt);
+		}
 	}
 }
 //ピン留め

@@ -73,9 +73,15 @@ function parse(obj, mix, acct_id, tlid, popup, mutefilter) {
 	}else{
 		var ticker=false;
 	}
+	//Animation
+	var anime = localStorage.getItem("animation");
+	if (anime=="yes" || !anime) {
+			var animecss="cvo-anime";
+	}else{
+			var animecss="";
+	}
 	//Cards
 	var card = localStorage.getItem("card_" + tlid);
-	
 	
 	if (!sent) {
 		var sent = 500;
@@ -163,7 +169,7 @@ function parse(obj, mix, acct_id, tlid, popup, mutefilter) {
 			Object.keys(toot.account.emojis).forEach(function(key5) {
 				var emoji = toot.account.emojis[key5];
 				var shortcode = emoji.shortcode;
-				var emoji_url = '<img src="' + emoji.url +
+				var emoji_url = '<img draggable="false" src="' + emoji.url +
 					'" class="emoji-img" data-emoji="'+shortcode+'" alt=" :'+shortcode+': ">';
 				var regExp = new RegExp(":" + shortcode + ":", "g");
 				dis_name = dis_name.replace(regExp, emoji_url);
@@ -179,7 +185,7 @@ function parse(obj, mix, acct_id, tlid, popup, mutefilter) {
 			}
 			noticeavatar='<a onclick="udg(\'' + toot.account.id +
 			'\',' + acct_id + ');" user="' + toot.account.acct + '" class="udg">' +
-			'<img src="' + noticeavatar +
+			'<img draggable="false" src="' + noticeavatar +
 			'" width="20" class="notf-icon prof-img" user="' + toot.account.acct +
 			'"></a>';
 			if (toot.type == "mention") {
@@ -288,7 +294,7 @@ function parse(obj, mix, acct_id, tlid, popup, mutefilter) {
 				}
 				noticeavatar='<a onclick="udg(\'' + toot.account.id +
 				'\',' + acct_id + ');" user="' + toot.account.acct + '" class="udg">' +
-				'<img src="' + noticeavatar +
+				'<img draggable="false" src="' + noticeavatar +
 				'" width="20" class="notf-icon prof-img" user="' + toot.account.acct +
 				'"></a>';
 				var rebtxt = lang.lang_parse_btedsimple;
@@ -315,7 +321,7 @@ function parse(obj, mix, acct_id, tlid, popup, mutefilter) {
 				Object.keys(toot.account.emojis).forEach(function(key5) {
 					var emoji = toot.account.emojis[key5];
 					var shortcode = emoji.shortcode;
-					var emoji_url = '<img src="' + emoji.url +
+					var emoji_url = '<img draggable="false" src="' + emoji.url +
 						'" class="emoji-img" data-emoji="'+shortcode+'" alt=" :'+shortcode+': ">';
 					var regExp = new RegExp(":" + shortcode + ":", "g");
 					dis_name = dis_name.replace(regExp, emoji_url);
@@ -324,7 +330,7 @@ function parse(obj, mix, acct_id, tlid, popup, mutefilter) {
 			} else {
 				var uniqueid=toot.id;
 				var notice = "";
-				var boostback = "";
+				var boostback = "unshared";
 				//ユーザー強調
 				if(toot.account.username!=toot.account.acct){
 					var fullname=toot.account.acct;
@@ -426,7 +432,7 @@ function parse(obj, mix, acct_id, tlid, popup, mutefilter) {
 			Object.keys(toot.emojis).forEach(function(key5) {
 				var emoji = toot.emojis[key5];
 				var shortcode = emoji.shortcode;
-				var emoji_url = '<img src="' + emoji.url +
+				var emoji_url = '<img draggable="false" src="' + emoji.url +
 					'" class="emoji-img" data-emoji="'+shortcode+'" alt=" :'+shortcode+': ">';
 				var regExp = new RegExp(":" + shortcode + ":", "g");
 				content = content.replace(regExp, emoji_url);
@@ -444,7 +450,7 @@ function parse(obj, mix, acct_id, tlid, popup, mutefilter) {
 			Object.keys(toot.profile_emojis).forEach(function(keynico) {
 				var emoji = toot.profile_emojis[keynico];
 				var shortcode = emoji.shortcode;
-				var emoji_url = '<img src="' + emoji.url +
+				var emoji_url = '<img draggable="false" src="' + emoji.url +
 					'" class="emoji-img" data-emoji="'+shortcode+'" alt=" :'+shortcode+': ">';
 				var regExp = new RegExp(":" + shortcode + ":", "g");
 				content = content.replace(regExp, emoji_url);
@@ -483,7 +489,7 @@ function parse(obj, mix, acct_id, tlid, popup, mutefilter) {
 				}
 				viewer = viewer + '<a onclick="imgv(\'' + id + '\',\'' + key2 + '\',\'' +
 					acct_id + '\')" id="' + id + '-image-' + key2 + '" data-url="' + url +
-					'" data-type="' + media.type + '" class="img-parsed"><img src="' +
+					'" data-type="' + media.type + '" class="img-parsed"><img draggable="false" src="' +
 					purl + '" class="' + sense +
 					' toot-img pointer" style="width:' + cwdt + '%; height:'+imh+'px;"></a></span>';
 			});
@@ -616,26 +622,29 @@ function parse(obj, mix, acct_id, tlid, popup, mutefilter) {
 		//Cards
 		if (!card && toot.card) {
 			var cards=toot.card;
-			if (cards.provider_name=="Twitter"){
-				if(cards.image){
-					var twiImg='<br><img src="'+cards.image+'">';
-				}else{
-					var twiImg='';
+				if (cards.provider_name=="Twitter"){
+					if(cards.image){
+						var twiImg='<br><img draggable="false" src="'+cards.image+'">';
+					}else{
+						var twiImg='';
+					}
+					analyze='<blockquote class="twitter-tweet"><b>'+escapeHTML(cards.author_name)+'</b><br>'+escapeHTML(cards.description)+twiImg+'</blockquote>';
 				}
-				analyze='<blockquote class="twitter-tweet"><b>'+escapeHTML(cards.author_name)+'</b><br>'+escapeHTML(cards.description)+twiImg+'</blockquote>';
-			}
-			if (cards.title) {
-				analyze="<span class=\"gray\">URL"+lang.lang_cards_check+":<br>Title:" + escapeHTML(cards.title) + "<br>" +
-					escapeHTML(cards.description) + "</span>";
-			}
-			if (cards.html) {
-				analyze=cards.html+'<i class="material-icons" onclick="pip('+id+')" title="'+lang.lang_cards_pip+'">picture_in_picture_alt</i>';
-			}
+				if (cards.title) {
+					analyze="<span class=\"gray\">URL"+lang.lang_cards_check+":<br>Title:" + escapeHTML(cards.title) + "<br>" +
+						escapeHTML(cards.description) + "</span>";
+				}
+				if (cards.html) {
+					analyze=cards.html+'<i class="material-icons" onclick="pip('+id+')" title="'+lang.lang_cards_pip+'">picture_in_picture_alt</i>';
+				}
+			
 		}
 		//Ticker
 		var tickerdom="";
 		if(ticker){
-			var tickerdata=JSON.parse(localStorage.getItem("ticker"));
+			var tickerdata=localStorage.getItem("ticker")
+			if(tickerdata){
+			var tickerdata=JSON.parse(tickerdata);
 			
 			var thisdomain=toot.account.acct.split("@");
 			if(thisdomain.length>1){
@@ -644,20 +653,50 @@ function parse(obj, mix, acct_id, tlid, popup, mutefilter) {
 			for( var i=0; i<tickerdata.length; i++) {
 				var value=tickerdata[i];
 				if(value.domain==thisdomain){
-					var tickerdom='<div style="background:linear-gradient(to left,transparent, '+value.bg+' 96%) !important; color:'+value.text+';width:100%; height:0.9rem; font-size:0.8rem;"><img src="'+value.image+'" style="height:100%;"><span style="position:relative; top:-0.2rem;"> '+value.name+'</span></div>';
+					var tickerdom='<div style="background:linear-gradient(to left,transparent, '+value.bg+' 96%) !important; color:'+value.text+';width:100%; height:0.9rem; font-size:0.8rem;"><img draggable="false" src="'+value.image+'" style="height:100%;"><span style="position:relative; top:-0.2rem;"> '+value.name+'</span></div>';
 					break;
 				}
 		   }
 		}
+		}
+		//Poll
+		var poll="";
+		if(toot.poll){
+			var choices=toot.poll.options;
+			if(toot.poll.voted){
+				var myvote=lang.lang_parse_voted;
+				var result_hide="";
+			}else{
+				myvote='<a onclick="voteMastodon(\''+acct_id+'\',\''+toot.poll.id+'\')" class="votebtn">'+lang.lang_parse_vote+'</a><br>';
+				if(choices[0].votes_count===0 || choices[0].votes_count>0){
+					myvote=myvote+'<a onclick="showResult(\''+acct_id+'\',\''+toot.poll.id+'\')" class="pointer">'+lang.lang_parse_unvoted+"</a>";
+				}
+				var result_hide="hide";
+			}
+			Object.keys(choices).forEach(function(keyc) {
+				var choice = choices[keyc];
+				if(!toot.poll.voted){
+					var votesel='voteSelMastodon(\''+acct_id+'\',\''+toot.poll.id+'\','+keyc+','+toot.poll.multiple+')';
+					var voteclass="pointer waves-effect waves-light";
+				}else{
+					var votesel="";
+					var voteclass="";
+				}
+				poll=poll+'<div class="'+voteclass+' vote vote_'+acct_id+'_'+toot.poll.id+'_'+keyc+'" onclick="'+votesel+'">'+choice.title+'<span class="vote_'+acct_id+'_'+toot.poll.id+'_result '+result_hide+'">('+choice.votes_count+')</span></div>';
+			});
+			poll='<div class="vote_'+acct_id+'_'+toot.poll.id+'">'+poll+myvote+'<span class="cbadge cbadge-hover" title="' + date(toot.poll.expires_at, 'absolute') +
+			'"><i class="fa fa-calendar-times-o"></i>' +
+			date(toot.poll.expires_at, datetype) + '</span></div>';
+		}
 		templete = templete + '<div id="pub_' + toot.id + '" class="cvo ' +
 			boostback + ' ' + fav_app + ' ' + rt_app + ' ' + pin_app +
-			' ' + hasmedia + '" toot-id="' + id + '" unique-id="' + uniqueid + '" data-medias="'+media_ids+' " unixtime="' + date(obj[
+			' ' + hasmedia + ' '+animecss+'" toot-id="' + id + '" unique-id="' + uniqueid + '" data-medias="'+media_ids+' " unixtime="' + date(obj[
 				key].created_at, 'unix') + '" '+if_notf+' onmouseover="mov(\'' + toot.id + '\',\''+tlid+'\',\'mv\')" onclick="mov(\'' + toot.id + '\',\''+tlid+'\',\'cl\')" onmouseout="resetmv(\'mv\')">' +
 			'<div class="area-notice"><span class="gray sharesta">' + notice + home +
 			'</span></div>' +
 			'<div class="area-icon"><a onclick="udg(\'' + toot.account.id +
 			'\',' + acct_id + ');" user="' + toot.account.acct + '" class="udg">' +
-			'<img src="' + avatar +
+			'<img draggable="false" src="' + avatar +
 			'" width="40" class="prof-img" user="' + toot.account.acct +
 			'"></a>'+noticeavatar+'</div>' +
 			'<div class="area-display_name"><div class="flex-name"><span class="user">' +
@@ -676,7 +715,7 @@ function parse(obj, mix, acct_id, tlid, popup, mutefilter) {
 			'' + viewer + '' +
 			'</div><div class="area-additional"><span class="additional">' + analyze +
 			'</span>' +
-			'' + mentions + tags + '</div>' +
+			'' +poll+ mentions + tags + '</div>' +
 			'<div class="area-vis"></div>'+
 			'<div class="area-actions '+mouseover+'">' +
 			'<div class="action">'+vis+'</div>'+
@@ -684,19 +723,19 @@ function parse(obj, mix, acct_id, tlid, popup, mutefilter) {
 			'<div class="action '+disp["re"]+' '+noauth+'"><a onclick="re(\'' + toot.id +
 			'\',\'' + toot.account.acct + '\',' +
 			acct_id + ',\''+visen+
-			'\')" class="waves-effect waves-dark btn-flat" style="padding:0" title="'+lang.lang_parse_replyto+'"><i class="fa fa-share"></i><span class="rep_ct">' + replyct +
+			'\')" class="waves-effect waves-dark btn-flat actct" style="padding:0" title="'+lang.lang_parse_replyto+'"><i class="fa fa-share"></i><span class="rep_ct">' + replyct +
 			'</a></span></a></div>' +
 			'<div class="action '+can_rt+' '+disp["rt"]+' '+noauth+'"><a onclick="rt(\'' + toot.id + '\',' + acct_id +
 			',\'' + tlid +
-			'\')" class="waves-effect waves-dark btn-flat" style="padding:0" title="'+lang.lang_parse_bt+'"><i class="text-darken-3 fa fa-retweet ' +
+			'\')" class="waves-effect waves-dark btn-flat actct" style="padding:0" title="'+lang.lang_parse_bt+'"><i class="fa fa-retweet ' +
 			if_rt + ' rt_' + toot.id + '"></i><span class="rt_ct">' + toot.reblogs_count +
 			'</span></a></div>' +
 			'<div class="action '+can_rt+' '+disp["qt"]+' '+noauth+'"><a onclick="qt(\'' + toot.id + '\',' + acct_id +
 			',\'' + toot.account.acct +'\',\''+toot.url+
-			'\')" class="waves-effect waves-dark btn-flat" style="padding:0" title="'+lang.lang_parse_quote+'"><i class="text-darken-3 fa fa-quote-right"></i></a></div>' +
+			'\')" class="waves-effect waves-dark btn-flat actct" style="padding:0" title="'+lang.lang_parse_quote+'"><i class="text-darken-3 fa fa-quote-right"></i></a></div>' +
 			'<div class="action '+disp["fav"]+' '+noauth+'"><a onclick="fav(\'' + toot.id + '\',' + acct_id +
 			',\'' + tlid +
-			'\')" class="waves-effect waves-dark btn-flat" style="padding:0" title="'+lang.lang_parse_fav+'"><i class="fa text-darken-3 fa-star' +
+			'\')" class="waves-effect waves-dark btn-flat actct" style="padding:0" title="'+lang.lang_parse_fav+'"><i class="fa text-darken-3 fa-star' +
 			if_fav + ' fav_' + toot.id + '"></i><span class="fav_ct">' + toot.favourites_count +
 			'</a></span></div>' +
 			'<div class="' + if_mine + ' action '+disp["del"]+' '+noauth+'"><a onclick="del(\'' + toot.id + '\',' +
@@ -754,8 +793,8 @@ function userparse(obj, auth, acct_id, tlid, popup) {
 			var auth = "";
 		}
 		var ftxt=lang.lang_parse_followed;
-		if(!locale && localStorage.getItem("follow_" + acct_id)){
-			ftxt = localStorage.getItem("follow_" + acct_id);
+		if(!locale && localStorage.getItem("followlocale_" + acct_id)){
+			ftxt = localStorage.getItem("followlocale_" + acct_id);
 		}
 		if(popup > 0 || popup==-1 || notf){
 			var notftext=ftxt+'<br>';
@@ -812,7 +851,7 @@ function userparse(obj, auth, acct_id, tlid, popup) {
 		Object.keys(toot.emojis).forEach(function(key5) {
 			var emoji = toot.emojis[key5];
 			var shortcode = emoji.shortcode;
-			var emoji_url = '<img src="' + emoji.url +
+			var emoji_url = '<img draggable="false" src="' + emoji.url +
 				'" class="emoji-img" data-emoji="'+shortcode+'" alt=" :'+shortcode+': ">';
 			var regExp = new RegExp(":" + shortcode + ":", "g");
 			dis_name = dis_name.replace(regExp, emoji_url);
@@ -832,7 +871,7 @@ function userparse(obj, auth, acct_id, tlid, popup) {
 			notftext +
 			'</div><div class="area-icon"><a onclick="udg(\'' + toot.id + '\',' +
 			acct_id + ');" user="' + toot.acct + '" class="udg">' +
-			'<img src="' + avatar + '" width="40" class="prof-img" user="' + toot
+			'<img draggable="false" src="' + avatar + '" width="40" class="prof-img" user="' + toot
 			.acct + '"></a></div>' +
 			'<div class="area-display_name"><div class="flex-name"><span class="user">' +
 			dis_name + '</span>' +

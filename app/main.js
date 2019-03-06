@@ -12,10 +12,6 @@ const fm = require('font-manager');
 const Menu=electron.Menu
 var updatewin=null;
 const join = require('path').join;
-// linuxの時は定義しない
-if (process.platform=='win32') {
-  const {NowPlaying,PlayerName} = require("nowplaying-node");
-}
 // アプリケーションをコントロールするモジュール
 const app = electron.app;
 // ウィンドウを作成するモジュール
@@ -280,65 +276,12 @@ ipc.on('shot-img-dl', (e, args) => {
 })
 //アプデDL
 ipc.on('download-btn', (e, args) => {
+	//console.log(args[1]);
 	var platform=process.platform;
 	var bit=process.arch;
-	var versioning=args[3];
-	var portable=args[2];
-	if(platform=="win32" || platform=="linux" || platform=="darwin" ){
-		var exe=false;
-		if(platform=="win32" && bit=="x64"){
-			if(portable){
-				var zip="TheDesk.exe";
-			}else{
-				var zip="TheDesk-setup.exe";
-			}
-			exe=true;
-		}else if(platform=="win32" && bit=="ia32"){
-			if(portable){
-				var zip="TheDesk-ia32.exe";
-			}else{
-				var zip="TheDesk-setup-ia32.exe";
-			}
-			exe=true;
-		}else if(platform=="linux" && bit=="x64"){
-			var zip="TheDesk-linux-x64.zip";
-		}else if(platform=="linux" && bit=="ia32"){
-			var zip="TheDesk-linux-ia32.zip";
-		}else if(platform=="darwin"){
-			var zip="TheDesk-darwin-x64.zip";
-		}else{
-			return;
-		}
-		if(versioning && !exe){
-			zip=zip.replace(".zip","."+args[1]+".zip");
-		}else if(versioning){
-			zip=zip.replace(".exe","."+args[1]+".exe");
-		}
-	}else{
-		const options = {
-			type: 'info',
-			title: 'Other OS Supporting System',
-			message: "thedesk.topをブラウザで開きます。",
-			buttons: ['OK']
-		  }
-		  dialog.showMessageBox(options, function(index) {
-			shell.openExternal("https://thedesk.top");
-		  })
-		  return;
-		if(bit=="x64"){
-			var zip="TheDesk-linux-x64.zip";
-		}else if(bit=="ia32"){
-			var zip="TheDesk-linux-ia32.zip";
-		}
-	}
-	var ver=args[1];
-	
-	console.log(zip);
-	if(args[0]=="true"){
 		dialog.showSaveDialog(null, {
-            title: '保存',
-			properties: ['openFile', 'createDirectory'],
-			defaultPath: zip
+      title: 'Save',
+			defaultPath: app.getPath('home')+"/"+args[1]
         }, (savedFiles) => {
 			console.log(savedFiles);
 			if(!savedFiles){
@@ -349,18 +292,12 @@ ipc.on('download-btn', (e, args) => {
 			}else{
 				var m = savedFiles.match(/(.+)\/(.+)$/);
 			}
-			
+			//console.log(m);
 			  if(isExistFile(savedFiles)){
-				fs.statSync(savedFiles);
-				fs.unlink(savedFiles);
+					fs.unlinkSync(savedFiles);
 			  }
-			  console.log(m[1]+":"+savedFiles)
-              dl(portable,ver,m[1],savedFiles);
+              dl(args[0],args[1],m[1]);
         });
-	}else{
-		dl(portable,ver);
-	}
-	
 });
 function isExistFile(file) {
 	try {
@@ -370,48 +307,10 @@ function isExistFile(file) {
 	  if(err.code === 'ENOENT') return false
 	}
   }
-function dl(portable,ver,files,fullname){
-	console.log(files);
-	var platform=process.platform;
-	var bit=process.arch;
-	if(platform=="win32"){
-		if(bit=="x64"){
-			if(portable){
-				var zip="TheDesk.exe";
-			}else{
-				var zip="TheDesk-setup.exe";
-			}
-		}else if(bit=="ia32"){
-			if(portable){
-				var zip="TheDesk-ia32.exe";
-			}else{
-				var zip="TheDesk-setup-ia32.exe";
-			}
-		}
-	}else if(platform=="linux"){
-		if(bit=="x64"){
-			var zip="TheDesk-linux-x64.zip";
-		}else if(bit=="ia32"){
-			var zip="TheDesk-linux-ia32.zip";
-		}
-	}else if(platform=="darwin"){
-			var zip="TheDesk-darwin-x64.zip";
-	}
-	//zip=zip+"?"+ver;
-	var l = 8;
-
-	// 生成する文字列に含める文字セット
-	var c = "abcdefghijklmnopqrstuvwxyz0123456789";
-
-	var cl = c.length;
-	var r = "";
-	for(var i=0; i<l; i++){
-	  r += c[Math.floor(Math.random()*cl)];
-	}
-
+function dl(url,file,dir){
 	updatewin.webContents.send('mess', "ダウンロードを開始します。");
 	const opts = {
-		directory:fullname,
+		directory:dir,
 		openFolderWhenDone: true,
 		onProgress: function(e) {
 			updatewin.webContents.send('prog', e);
@@ -419,7 +318,7 @@ function dl(portable,ver,files,fullname){
 		saveAs: false
 	};
 	download(BrowserWindow.getFocusedWindow(),
-			'https://dl.thedesk.top/'+zip, opts)
+			url, opts)
 		.then(dl => {
 			updatewin.webContents.send('mess', "ダウンロードが完了しました。");
 			app.quit();
@@ -472,8 +371,11 @@ function about(){
 	   window.loadURL('file://' + __dirname + '/about.html?ver='+ver);
 	   return "true"
 }
+
 ipc.on('itunes', (e, args) => {
+	console.log("Access");
 	if(args[0]=="set"){
+		var {NowPlaying,PlayerName} = require("nowplaying-node");
 		var nppath=join(app.getPath("userData"), "nowplaying");
 		var npProvider;
 		try {
@@ -498,6 +400,7 @@ ipc.on('itunes', (e, args) => {
 			console.log(error);
 		});
 		}else{
+			var {NowPlaying,PlayerName} = require("nowplaying-node");
 			var nppath=join(app.getPath("userData"), "nowplaying");
 			var npProvider;
 			try {
@@ -525,7 +428,7 @@ ipc.on('itunes', (e, args) => {
 			}
 			mainWindow.webContents.send('itunes-np', value);
 		}
-	}
+		}
 	
 });
 ipc.on('file-select', (e, args) => {
@@ -689,6 +592,7 @@ object_array_sort(fonts, 'family', 'asc', function(fonts_sorted){
 	mainWindow.webContents.send('font-list', fonts_sorted);
 });
 });
+
 
 
 app.setAsDefaultProtocolClient('thedesk')

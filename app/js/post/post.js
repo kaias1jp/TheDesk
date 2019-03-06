@@ -1,4 +1,4 @@
-/*投稿系*/
+/*投稿系*/ 
 //投稿
 function sec(){
 	var mode=localStorage.getItem("sec");
@@ -55,8 +55,8 @@ function post(mode,postvis) {
 			title: lang.lang_post_cwtitle,
 			message: lang.lang_post_cwtxt+plus,
 			buttons: [lang.lang_post_btn1,lang.lang_post_btn2, lang.lang_post_btn3]
-	  	}
-	  	dialog.showMessageBox(options, function(arg) {
+	  }
+	  dialog.showMessageBox(options, function(arg) {
 			if(arg==1){
 				$("#cw-text").show();
 				$("#cw").addClass("yellow-text");
@@ -122,12 +122,42 @@ function post(mode,postvis) {
 	}
 	if ($("#sch-box").hasClass("sch-avail")) {
 		var scheduled=formattimeutc(new Date(Date.parse($("#sch-date").val())))
+		console.log(scheduled)
 		schedule();
 		toot.scheduled_at=scheduled;
-		
 	} else {
 		var scheduled = "";
 	}
+	if ($("#poll-sel").val()=="mastodon-poll") {
+		var options=[];
+		$(".mastodon-choice").map(function() {
+			var choice=$(this).val();
+			if(choice!=""){
+				options.push(choice);
+			}
+		});
+		if($("#poll-multiple:checked").val()=="1"){
+			var mul=true;
+		}else{
+			var mul=false;
+		}
+		if($("#poll-until:checked").val()=="1"){
+			var htt=true;
+		}else{
+			var htt=false;
+		}
+		var exin=pollCalc();
+		if(!exin){
+			todc("Error: Poll expires_in param")
+		}
+		toot.poll={
+			options: options,
+			expires_in: exin,
+			multiple: mul,
+			hide_totals: htt
+		}
+	}
+	console.log(toot);
 	var httpreq = new XMLHttpRequest();
 	httpreq.open('POST', start, true);
 	httpreq.setRequestHeader('Content-Type', 'application/json');
@@ -263,6 +293,12 @@ function clear() {
 	$("#preview").html("");
 	$(".toot-btn-group").prop("disabled", false);
 	$("#post-acct-sel").prop("disabled", false);
+	$("#days_poll").val(0);
+  $("#hours_poll").val(0);
+	$("#mins_poll").val(0);
+	$(".mastodon-choice").map(function() {
+		$(this).val("");
+	});
 	localStorage.removeItem("image");
 	if(localStorage.getItem("mainuse")=="main"){
 		$("#post-acct-sel").val(localStorage.getItem("main"));

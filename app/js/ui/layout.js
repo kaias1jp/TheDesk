@@ -106,7 +106,7 @@ function parseColumn() {
 		console.log(acct.domain);
 		if(acctlist[acct.domain]){
 			if(acctlist[acct.domain].background!="def"){
-				insert=insert+" border-bottom:medium solid #"+acctlist[acct.domain].background;
+				insert=insert+" border-bottom:medium solid #"+acctlist[acct.domain].background+";";
 			}
 		}
 		if(acct.type=="notf" && localStorage.getItem("setasread")=="no"){
@@ -115,20 +115,40 @@ function parseColumn() {
 			localStorage.removeItem("hasNotfC_" + acct.domain);
 		}
 		if(acct.type=="webview"){
-			var html =webview("https://tweetdeck.twitter.com",key,insert,icnsert);
+			if(localStorage.getItem("fixwidth")){
+				var fixwidth=localStorage.getItem("fixwidth");
+				var css=" min-width:"+fixwidth+"px;"
+			}else{
+				var css="";
+			}
+			var html =webview("https://tweetdeck.twitter.com",key,insert,icnsert,css);
 			$("#timeline-container").append(html);
 		}else{
+			var width = localStorage.getItem("width");
+		if (width) {
+			var css=" min-width:"+width+"px;"
+		}
+		var anime = localStorage.getItem("animation");
+		if (anime=="yes" || !anime) {
+			var animecss="box-anime";
+		}else{
+			var animecss="";
+		}
 		if(acct.type=="notf"){
 			var exclude=lang.lang_excluded+':<br><input type="checkbox" class="filled-in" id="exc-reply-'+key+'" '+excludeCk(key,"mention")+' /><label for="exc-reply-'+key+'" class="exc-chb"><i class="fa fa-share exc-icons"></i></label> '+
 			'<input type="checkbox" class="filled-in" id="exc-fav-'+key+'"  '+excludeCk(key,"favourite")+' /><label for="exc-fav-'+key+'" class="exc-chb"><i class="fa fa-star exc-icons"></i></label> '+
 			'<input type="checkbox" class="filled-in" id="exc-bt-'+key+'" '+excludeCk(key,"reblog")+' /><label for="exc-bt-'+key+'" class="exc-chb" ><i class="fa fa-retweet exc-icons"></i></label> '+
 			'<input type="checkbox" class="filled-in" id="exc-follow-'+key+'" '+excludeCk(key,"follow")+' /><label for="exc-follow-'+key+'" class="exc-chb" ><i class="fa fa-users exc-icons"></i></label> '+
 			'<button class="btn waves-effect" style="width:60px; padding:0;" onclick="exclude('+key+')">Filter</button><br>';
+		}else if(acct.type=="home"){
+			var exclude='<a onclick="ebtToggle(' + key +
+			')" class="setting nex"><i class="fa fa-retweet waves-effect nex" title="'+lang.lang_layout_excludingbt +'" style="font-size:24px"></i><span id="sta-bt-' +
+			key + '">Off</span></a>'+lang.lang_layout_excludingbt+'<br>';
 		}else{
 			var exclude="";
 		}
-		var html = '<div class="box" id="timeline_box_' + key + '_box" tlid="' + key +
-			'" data-acct="'+acct.domain+'"><div class="notice-box z-depth-2" id="menu_'+key+'" style="'+insert+'">'+
+		var html = '<div style="'+css+'" class="box '+animecss+'" id="timeline_box_' + key + '_box" tlid="' + key +
+			'" data-acct="'+acct.domain+'"><div class="notice-box z-depth-2" id="menu_'+key+'" style="'+insert+' ">'+
 			'<div class="area-notice"><i class="material-icons waves-effect red-text" id="notice_icon_' + key + '"'+notf_attr+' style="font-size:40px; padding-top:25%;" onclick="goTop(' + key + ')" title="'+lang.lang_layout_gotop +'"></i></div>'+
 			'<div class="area-notice_name"><span id="notice_' + key + '" class="tl-title"></span></div>'+
 			'<div class="area-a1"><a onclick="notfToggle(' + acct.domain + ',' + key +
@@ -149,7 +169,7 @@ function parseColumn() {
 		  ')" class="setting nex"><i class="material-icons waves-effect nex" title="'+lang.lang_layout_tts +'">hearing</i><span id="sta-voice-' +
 		  key + '">On</span></a>'+lang.lang_layout_tts +'TL<br><a onclick="reconnector(' + key +
 		  ',\''+acct.type+'\',\''+acct.domain+'\',\''+acct.data+'\')" class="setting nex '+if_notf+'"><i class="material-icons waves-effect nex '+if_notf+'" title="'+lang.lang_layout_reconnect+'">low_priority</i></a><span class="'+if_notf+'">'+lang.lang_layout_reconnect+'</span><br>'+lang.lang_layout_headercolor +'<br><div id="picker_'+key+'" class="color-picker"></div></div><div class="tl-box" tlid="' + key + '"><div id="timeline_' + key +
-			'" class="tl" tlid="' + key + '" data-type="' + acct.type + '"><div id="landing_'+key+'" style="text-align:center">'+lang.lang_layout_nodata +'</div></div></div></div>';
+			'" class="tl '+acct.type+'-timeline " tlid="' + key + '" data-type="' + acct.type + '" data-acct="'+acct.domain+'"><div id="landing_'+key+'" style="text-align:center">'+lang.lang_layout_nodata +'</div></div></div></div>';
 		$("#timeline-container").append(html);
 		localStorage.removeItem("pool_" + key);
 		if (acct.data) {
@@ -170,15 +190,12 @@ function parseColumn() {
 		}
 		tl(acct.type, data, acct.domain, key, delc,voice,"");
 		cardCheck(key);
+		ebtCheck(key);
 		mediaCheck(key);
 		catchCheck(key);
 		voiceCheck(key);
 		}
 	});
-	var width = localStorage.getItem("width");
-	if (width) {
-		$(".box").css("min-width", width + "px");
-	}
 	var box = localStorage.getItem("box");
 	if (box == "absolute") {
 		setTimeout(show, 1000);
@@ -388,9 +405,9 @@ function coloradd(key,bg,txt){
 	}
 }
 //禁断のTwitter
-function webview(url,key,insert,icnsert){
+function webview(url,key,insert,icnsert,css){
 	var html = '<div class="box" id="timeline_box_' + key + '_box" tlid="' + key +
-			'"><div class="notice-box z-depth-2" id="menu_'+key+'" style="'+insert+'">'+
+			'" style="'+css+'"><div class="notice-box z-depth-2" id="menu_'+key+'" style="'+insert+'">'+
 			'<div class="area-notice"><i class="fa fa-twitter waves-effect" id="notice_icon_' + key + '" style="font-size:40px; padding-top:25%;"></i></div>'+
 			'<div class="area-notice_name tl-title">WebView('+url+')</div>'+
 			'<div class="area-sta"><input type="checkbox" id="webviewsel" value="true" class="filled-in"><label for="webviewsel">'+lang.lang_layout_webviewmode +'</label></div>'+

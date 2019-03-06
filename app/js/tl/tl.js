@@ -1,4 +1,5 @@
 //TL取得
+moreloading=false;
 function tl(type, data, acct_id, tlid, delc, voice, mode) {
 	scrollevent();
 	localStorage.removeItem("morelock");
@@ -52,7 +53,14 @@ function tl(type, data, acct_id, tlid, delc, voice, mode) {
 			"user_" + acct_id) + "@" + domain + ")");
 			$("#notice_icon_" + tlid).text("notifications");
 		return;
-	}
+	}/*else if (type == "dm") {
+		//DMなら飛ばす
+		dm(acct_id, tlid, "plus",delc,voice);
+		$("#notice_" + tlid).text(cap(type, data, acct_id) + "(" + localStorage.getItem(
+			"user_" + acct_id) + "@" + domain + ")");
+			$("#notice_icon_" + tlid).text("notifications");
+		return;
+	}*/
 	localStorage.setItem("now", type);
 	todo(cap(type) + " TL Loading...");
 	var at = localStorage.getItem("acct_"+ acct_id + "_at");
@@ -80,6 +88,7 @@ function tl(type, data, acct_id, tlid, delc, voice, mode) {
 			if(type!="noauth"){
 				req.i=at;
 			}
+			
 			if(type=="local-media"||type=="pub-media"){
 				req.mediaOnly=true;
 			}
@@ -359,8 +368,7 @@ function moreload(type, tlid) {
 		var data=obj[tlid].data;
 	}
 	var sid = $("#timeline_" + tlid + " .cvo").last().attr("unique-id");
-	if (sid && localStorage.getItem("morelock") != sid) {
-		localStorage.setItem("morelock", sid);
+	if (sid && !moreloading) {
 		if (type == "mix" && localStorage.getItem("mode_" + localStorage.getItem("domain_" + acct_id))!="misskey") {
 			mixmore(tlid,"integrated");
 			return;
@@ -371,6 +379,7 @@ function moreload(type, tlid) {
 			notfmore(tlid);
 			return;
 		}
+		moreloading=true;
 		localStorage.setItem("now", type);
 		todo(cap(type) + " TL MoreLoading");
 		if(type!="noauth"){
@@ -440,7 +449,7 @@ function moreload(type, tlid) {
 			$("#timeline_" + tlid).append(templete);
 			additional(acct_id, tlid);
 			jQuery("time.timeago").timeago();
-			localStorage.removeItem("morelock")
+			moreloading=false;
 			todc();
 		});
 	}
@@ -672,5 +681,4 @@ function reconnector(tlid,type,acct_id,data,mode){
 	}
 	Materialize.toast(lang.lang_tl_reconnect, 2000);
 }
-
 strAliveInt()

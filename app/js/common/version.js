@@ -1,5 +1,6 @@
 //バージョンチェッカー
-function verck(ver,winstore) {
+function verck(ver) {
+	console.log("Welcome")
 	if(localStorage.getItem("ver")!=ver){
 		localStorage.setItem("ver", ver);
 		console.log("Thank you for your update");
@@ -13,21 +14,25 @@ function verck(ver,winstore) {
 			verp=verp.replace( ')', '');
 			verp=verp.replace( ' ', '_');
 			console.log(verp);
-			$("#release-"+verp).show();
+			if(lang.language=="ja"){
+				$("#release-"+verp).show();
+			}else{
+				$("#release-en").show();
+			}
+			
 		  });
 	}
 	var electron = require("electron");
 	var remote=electron.remote;
 	var dialog=remote.dialog;
-	const options = {
-		type: 'info',
-		title: "Select your platform",
-		message: lang.lang_version_platform,
-		buttons: [lang.lang_no,lang.lang_yesno]
-	  }
 	  var platform=remote.process.platform;
 	  if(platform=="win32"){
-		  console.log(localStorage.getItem("winstore"))
+		const options = {
+			type: 'info',
+			title: "Select your platform",
+			message: lang.lang_version_platform,
+			buttons: [lang.lang_no,lang.lang_yesno]
+		  }
 		  if(!localStorage.getItem("winstore")){
 			  
 				dialog.showMessageBox(options, function(arg) {
@@ -38,8 +43,32 @@ function verck(ver,winstore) {
 					}
 			  });
 		  }
-	  }else{
+	  }else if(platform=="linux"){
+		if(localStorage.getItem("winstore")=="unix"){
+			localStorage.removeItem("winstore")
+		}
+		if(!localStorage.getItem("winstore")){
+			const options = {
+				type: 'info',
+				title: "Select your platform",
+				message: lang.lang_version_platform_linux,
+				buttons: [lang.lang_no,lang.lang_yesno]
+			  }
+			  dialog.showMessageBox(options, function(arg) {
+				if(arg==1){
+					localStorage.setItem("winstore","snapcraft")
+				  }else{
+					localStorage.setItem("winstore","localinstall")
+				  }
+			});
+		}
+	}else{
 		  localStorage.setItem("winstore","unix")
+	  }
+	  if(localStorage.getItem("winstore")=="snapcraft" || localStorage.getItem("winstore")=="winstore"){
+		var winstore=true;
+	  }else{
+		  var winstore=false;
 	  }
 	var l = 5;
 	// 生成する文字列に含める文字セット
@@ -70,7 +99,7 @@ function verck(ver,winstore) {
 			}
 			if (newest == ver) {
 				todo(lang.lang_version_usever.replace("{{ver}}" ,mess.desk));
-				//betaかWInstoreならアプデチェックしない
+				//betaかWinstoreならアプデチェックしない
 			} else if (ver.indexOf("beta")!=-1 || winstore) {
 				
 			}else{
@@ -80,6 +109,7 @@ function verck(ver,winstore) {
 						var ipc = electron.ipcRenderer;
 						ipc.send('update', "true");
 					}else{
+						console.log(lang.lang_version_skipver);
 						todo(lang.lang_version_skipver);
 					}
 				}else{

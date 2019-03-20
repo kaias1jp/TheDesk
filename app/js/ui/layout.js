@@ -7,13 +7,18 @@ var websocketLocal = [];
 var websocketNotf = [];
 
 //カラム追加ボックストグル
-function addToggle() {
-	$("#add-box").toggleClass("hide");
+function addColumnMenu() {
+	$("#left-menu div").removeClass("active");
+	$("#addColumnMenu").addClass("active");
+	$(".menu-content").addClass("hide");
+    $("#add-box").removeClass("hide");
 	addselCk()
-	$("#add-box").css("bottom","40px");
-	$("#add-box").css("left",$('#add-tgl').offset().left-$('#add-box').width()/2+"px");
-	$("#add-box").toggleClass("show");
 }
+$('.type').click(function() {
+	$(".type").removeClass("active");
+	$(this).addClass("active");
+	$("#type-sel").val($(this).attr("data-type"))
+})
 //最初、カラム変更時に発火
 function parseColumn() {
 	console.log("parse");
@@ -49,10 +54,10 @@ function parseColumn() {
 	}
 	var acctlist=obj;
 	console.log(obj);
-	var xed=localStorage.getItem("xed");
+	/*var xed=localStorage.getItem("xed");
 	if(xed){
 		xpand();
-	}
+	}*/
 	var col = localStorage.getItem("column");
 	if (!col) {
 		var obj = [{
@@ -293,10 +298,8 @@ function addselCk(){
 	}
 	if(domain=="knzk.me" || domain=="mstdn.y-zu.org"){
 		$("#type-sel").append('<option value="dm" data-trans="dm" id="direct-add">'+lang.layout_dm +'</option>');
-		$('#type-sel').material_select('update');
 	}else{
 		$("#direct-add").remove();
-		$('#type-sel').material_select('update');
 	}
 }
 //カラム削除

@@ -1,6 +1,6 @@
 {
   "name": "thedesk",
-  "version": "17.2.0",
+  "version": "18.0.3",
   "description": "TheDesk is a Mastodon client for PC.",
   "main": "main.js",
   "scripts": {
@@ -16,7 +16,7 @@
   },
   "homepage": "https://thedesk.top",
   "author": {
-    "name": "Cutls P",
+    "name": "Cutls",
     "url": "https://kirishima.clooud/@Cutls",
     "email": "web-pro@cutls.com"
   },
@@ -39,7 +39,8 @@
     "jimp": "^0.2.28",
     "json5": "^2.1.0",
     "node-notifier": "^5.2.1",
-    "sumchecker": "^2.0.2"
+    "sumchecker": "^2.0.2",
+    "vue": "^2.6.9"
   },
   "optionalDependencies": {
     "itunes-nowplaying-mac": "^0.2.3",
@@ -52,12 +53,19 @@
       "output": "../build"
     },
     "win": {
-      "icon": "thedesk.ico",
+      "icon": "build/thedesk.ico",
       "target": [
         "nsis",
         "portable",
         "appx"
       ]
+    },
+    "appx": {
+      "identityName":"53491Cutls.TheDesk",
+      "applicationId":"Cutls.TheDesk",
+      "publisherDisplayName":"Cutls",
+      "publisher":"CN=629757F5-A5EE-474F-9562-B304A89A9FD1",
+      "languages":["JA-JP","EN-US"]
     },
     "nsis": {
       "oneClick": false,
